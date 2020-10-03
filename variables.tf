@@ -6,12 +6,20 @@ variable control_resource_name {
   default = "a2-control"
 }
 
+variable shared_resource_name {
+  default = "a2shared"
+}
+
 variable aks_resource_name {
   default = "a2-demo"
 }
 
 locals {
   control_tags         = {
+    tier               = "control"
+    environment        = "control"
+  }
+  shared_tags          = {
     tier               = "control"
     environment        = "control"
   }
