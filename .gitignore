@@ -43,3 +43,4 @@ terraform.rc
 #default.auto.tfvars
 #*tfvars
 out.plan
+init.sh

@@ -1,28 +1,25 @@
+variable "subscription_id" {
+  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+variable "client_id" {
+  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+variable "client_secret" {
+  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+variable "tenant_id" {
+  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+
 variable main_region {
   default = "West Europe"
 }
 
-variable control_resource_name {
-  default = "a2-control"
-}
-
-variable shared_resource_name {
-  default = "a2shared"
-}
-
 variable aks_resource_name {
-  default = "a2-demo"
+  default = "demo"
 }
 
 locals {
-  control_tags         = {
-    tier               = "control"
-    environment        = "control"
-  }
-  shared_tags          = {
-    tier               = "control"
-    environment        = "control"
-  }
   infra_tags           = {
     tier               = "app"
     environment        = "demo"

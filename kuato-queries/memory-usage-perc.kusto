@@ -1,0 +1,43 @@
+let k8sNamespace = "{k8sNamespace}";
+let k8sName      = "{aksName}";
+let k8sAppName   = "{appName}";
+
+let appContainers = KubePodInventory
+| where Namespace == k8sNamespace
+| where ClusterName == k8sName
+| where TimeGenerated {timeRange:query}
+| extend AppName = tostring(parse_json(PodLabel)[0]["app"])
+| where AppName == k8sAppName
+| extend JustContainerName=tostring(split(ContainerName, '/')[1])
+| extend InstanceName=strcat(ClusterId, '/', PodUid, '/', JustContainerName)
+| project InstanceName
+| distinct InstanceName;
+
+
+let memoryRequestBytes = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "memoryRequestBytes"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, memoryRequestBytes=CounterValue;
+
+let memoryLimitBytes = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "memoryLimitBytes"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, memoryLimitBytes=CounterValue;
+
+let memoryRssBytes = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "memoryRssBytes"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, memoryRssBytes=CounterValue;
+
+let memoryWorkingSetBytes = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "memoryWorkingSetBytes"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, memoryWorkingSetBytes=CounterValue;
+
+memoryLimitBytes
+| union memoryWorkingSetBytes, memoryRssBytes, memoryRequestBytes
+| summarize memoryWorkingSet=(100*avg(memoryWorkingSetBytes)/avg(memoryLimitBytes)), memoryRss=(100*avg(memoryRssBytes)/avg(memoryLimitBytes)) by bin(TimeGenerated, {timeRange:grain})

@@ -1,0 +1,37 @@
+let k8sNamespace = "{k8sNamespace}";
+let k8sName      = "{aksName}";
+let k8sAppName   = "{appName}";
+
+let appContainers = KubePodInventory
+| where Namespace == k8sNamespace
+| where ClusterName == k8sName
+| where TimeGenerated {timeRange:query}
+| extend AppName = tostring(parse_json(PodLabel)[0]["app"])
+| where AppName == k8sAppName
+| extend JustContainerName=tostring(split(ContainerName, '/')[1])
+| extend InstanceName=strcat(ClusterId, '/', PodUid, '/', JustContainerName)
+| project InstanceName
+| distinct InstanceName;
+
+let cpuRequestNanoCores = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "cpuRequestNanoCores"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, cpuRequestNanoCores=CounterValue;
+
+let cpuUsageNanoCores = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "cpuUsageNanoCores"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, cpuUsageNanoCores=CounterValue;
+
+let cpuLimitNanoCores = Perf
+| where InstanceName in (appContainers)
+| where CounterName == "cpuLimitNanoCores"
+| where TimeGenerated {timeRange:query}
+| project TimeGenerated, CounterName, CounterValue, cpuLimitNanoCores=CounterValue;
+
+cpuRequestNanoCores
+| union cpuLimitNanoCores, cpuUsageNanoCores
+| summarize cpuRequestNanoCores=avg(cpuRequestNanoCores),cpuLimitNanoCores=avg(cpuLimitNanoCores),cpuUsageNanoCores=avg(cpuUsageNanoCores)  by bin(TimeGenerated, {timeRange:grain})
+
