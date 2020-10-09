@@ -1,14 +1,8 @@
-variable "subscription_id" {
-  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+variable "azurerm_log_analytics_workspace_name" {
+  default       = "control-16691188350723551381"
 }
-variable "client_id" {
-  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-}
-variable "client_secret" {
-  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-}
-variable "tenant_id" {
-  default       = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+variable "azurerm_log_analytics_workspace_resource_group" {
+  default       = "control"
 }
 
 variable main_region {

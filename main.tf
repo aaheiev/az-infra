@@ -1,4 +1,4 @@
-//terraform {
-//  backend "azurerm" {}
-//}
-data "azurerm_subscription" "current" {}
+terraform {
+  backend "azurerm" {}
+}
+data "azurerm_subscription"  "current" {}
